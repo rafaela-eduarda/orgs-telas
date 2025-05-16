@@ -1,33 +1,36 @@
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-import Texto from '../../componentes/Texto';
-
-import Topo from '../../componentes/Topo';
+import Produtor from './componentes/Produtor';
+import Topo from './componentes/Topo';
+import useProdutores from '../../hooks/useProdutores';
 import useTextos from '../../hooks/useTextos';
-import Detalhes from './componentes/Detalhes';
-import Item from './componentes/Item';
 
-export default function Cesta({ detalhes, itens, produtor }) {
-  const { topoCesta, tituloItens } = useTextos();
 
-  return <>
-    <FlatList
-      data={itens}
-      renderItem={Item}
-      keyExtractor={({ nome }) => nome }
-      ListHeaderComponent={() => {
-        return <>
-          <Topo titulo={topoCesta} />
-          <View style={estilos.cesta}>
-            <Detalhes {...detalhes} produtor={produtor} />
-            <Texto style={estilos.titulo}>{ tituloItens }</Texto>
-          </View>
-        </>
-      }}
-      style={estilos.lista}
-    />
-  </>
+export default function Produtores({ melhoresProdutores }) {
+  const navigation = useNavigation();
+
+  const lista = useProdutores(melhoresProdutores);
+  const { tituloProdutores } = useTextos();
+
+  const TopoLista = () => {
+    return <>
+      <Topo melhoresProdutores={melhoresProdutores} />
+      <Text style={estilos.titulo}>{tituloProdutores}</Text>
+    </>
+  }
+
+  return <FlatList
+    data={lista}
+    renderItem={
+      ({ item }) => <Produtor {...item} aoPressionar={() => {
+        navigation.navigate('Produtor',item);
+      }} />
+    }
+    keyExtractor={({ nome }) => nome}
+    ListHeaderComponent={TopoLista}
+    style={estilos.lista} />
 }
 
 const estilos = StyleSheet.create({
@@ -35,15 +38,11 @@ const estilos = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   titulo: {
-    color: "#464646",
-    fontWeight: "bold",
-    marginTop: 32,
-    marginBottom: 8,
     fontSize: 20,
     lineHeight: 32,
-  },
-  cesta: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-});
+    marginHorizontal: 16,
+    marginTop: 16,
+    fontWeight: 'bold',
+    color: '#464646',
+  }
+})
